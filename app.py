@@ -17,38 +17,69 @@ events = [
     Event(2, "Python Workshop")
 ]
 
-# TODO: Task 1 - Define the Problem
-# Create a new event from JSON input
+# ------------------------------
+# POST /events - Create a new event
+# ------------------------------
 @app.route("/events", methods=["POST"])
 def create_event():
-    # TODO: Task 2 - Design and Develop the Code
+    # Task 1: Get JSON input
+    data = request.get_json()
 
-    # TODO: Task 3 - Implement the Loop and Process Each Element
+    if not data or "title" not in data:
+        return ("Missing 'title' field", 400)
 
-    # TODO: Task 4 - Return and Handle Results
-    pass
+    # Task 2: Generate new ID
+    new_id = max((e.id for e in events), default=0) + 1
 
-# TODO: Task 1 - Define the Problem
-# Update the title of an existing event
+    # Task 3: Create new Event object
+    new_event = Event(new_id, data["title"])
+    events.append(new_event)
+
+    # Task 4: Return result
+    return jsonify(new_event.to_dict()), 201
+
+
+# ------------------------------
+# PATCH /events/<event_id> - Update an existing event
+# ------------------------------
 @app.route("/events/<int:event_id>", methods=["PATCH"])
 def update_event(event_id):
-    # TODO: Task 2 - Design and Develop the Code
+    # Task 1: Find event
+    event = next((e for e in events if e.id == event_id), None)
 
-    # TODO: Task 3 - Implement the Loop and Process Each Element
+    if not event:
+        return ("Event not found", 404)
 
-    # TODO: Task 4 - Return and Handle Results
-    pass
+    # Task 2: Parse JSON input
+    data = request.get_json()
+    if not data:
+        return ("No data provided", 400)
 
-# TODO: Task 1 - Define the Problem
-# Remove an event from the list
+    # Task 3: Update fields
+    if "title" in data:
+        event.title = data["title"]
+
+    # Task 4: Return updated event
+    return jsonify(event.to_dict())
+
+
+# ------------------------------
+# DELETE /events/<event_id> - Delete event
+# ------------------------------
 @app.route("/events/<int:event_id>", methods=["DELETE"])
 def delete_event(event_id):
-    # TODO: Task 2 - Design and Develop the Code
+    # Task 1: Find event
+    event = next((e for e in events if e.id == event_id), None)
 
-    # TODO: Task 3 - Implement the Loop and Process Each Element
+    if not event:
+        return ("Event not found", 404)
 
-    # TODO: Task 4 - Return and Handle Results
-    pass
+    # Task 2: Remove from list
+    events.remove(event)
+
+    # Task 3/4: Return success
+    return "", 204
+
 
 if __name__ == "__main__":
     app.run(debug=True)
